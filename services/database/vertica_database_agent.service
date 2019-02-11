@@ -2,8 +2,6 @@
 Description="VerticaDB Host agent"
 
 [Service]
-User={{ os_agent_user }}
-Group={{ os_agent_user }}
 Environment="PARAMS=-name {{ item.value.dbname }} -host {{ item.value.ip }} -port {{ agent_db_port }} -user {{ agent_db_user }}"
 ExecStart={{ virtualenv_dir }}/bin/python {{ virtualenv_dir }}/scripts/VerticaDatabaseAgent.py $PARAMS
 ExecStop={{ virtualenv_dir }}/bin/python {{ virtualenv_dir }}/scripts/VerticaDatabaseAgent_stop.py $PARAMS

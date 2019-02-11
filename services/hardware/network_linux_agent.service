@@ -2,8 +2,6 @@
 Description="Network Host agent"
 
 [Service]
-User={{ os_agent_user }}
-Group={{ os_agent_user }}
 Environment="PARAMS=-name {{ item.value.dbname }} -host {{ item.value.ip }} -port {{ agent_ssh_port }} -user {{ agent_ssh_user }}"
 ExecStart={{ virtualenv_dir }}/bin/python {{ virtualenv_dir }}/scripts/NetworkAgent_Linux.py $PARAMS
 ExecStop={{ virtualenv_dir }}/bin/python {{ virtualenv_dir }}/scripts/NetworkAgent_Linux_stop.py $PARAMS
