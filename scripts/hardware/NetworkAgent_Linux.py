@@ -2,10 +2,10 @@ import argparse
 import atexit
 import os
 from multiprocessing import Process
-import configuration as cfg
+from ..utils import configuration as cfg
 import paramiko
 import time
-import utils
+from ..utils import utils
 import datetime as dt
 
 network_command = "cat /proc/net/dev"

@@ -1,5 +1,5 @@
 import argparse
-import utils
+from ..utils import utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

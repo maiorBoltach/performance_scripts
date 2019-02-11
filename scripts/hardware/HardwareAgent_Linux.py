@@ -1,12 +1,12 @@
 import argparse
 import os
 from multiprocessing import Process
-import configuration as cfg
+from ..utils import configuration as cfg
 import paramiko
 import datetime as dt
 import time
 import atexit
-import utils
+from ..utils import utils
 
 process_info_command = "top -bn1 -p $(/usr/sbin/pidof vertica | sed 's/ /, /g')"
 cpu_command = "mpstat -P ALL 1 2"

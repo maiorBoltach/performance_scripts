@@ -1,11 +1,11 @@
 import argparse
 import os
 from multiprocessing import Process
-import configuration as cfg
+from ..utils import configuration as cfg
 from pypsexec.client import Client
 import datetime as dt
 import time
-import utils
+from ..utils import utils
 import atexit
 
 network_command = 'Get-NetAdapterStatistics -Name "*" | Format-List -Property "*"'

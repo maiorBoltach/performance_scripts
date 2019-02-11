@@ -5,9 +5,9 @@ import time
 from datetime import datetime, timedelta
 from multiprocessing import Process
 from pytz import timezone
-import configuration as cfg
+from ..utils import configuration as cfg
 import vertica_python
-import utils
+from ..utils import utils
 
 node_status_sql = "SELECT /*+LABEL(PERFORMANCE_AGENT)*/ node_name, node_state FROM nodes"
 request_history = "SELECT /*+LABEL(PERFORMANCE_AGENT)*/ node_name, user_name, request_id, transaction_id, statement_id, request_type, request, request_label, memory_acquired_mb,success, error_count, start_timestamp, end_timestamp, request_duration_ms, is_executing FROM v_monitor.query_requests WHERE statement_id > 0 AND transaction_id > 0 AND (start_timestamp > :param OR end_timestamp > :param OR is_executing='t')"

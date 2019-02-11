@@ -1,5 +1,5 @@
 import requests
-import configuration as cfg
+from ..utils import configuration as cfg
 import datetime as dt
 import json
 
