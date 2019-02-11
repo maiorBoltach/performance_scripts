@@ -5,3 +5,5 @@ Description="VerticaDB Host agent"
 Environment="PARAMS=-name {{ item.value.dbname }} -host {{ item.value.ip }} -port {{ agent_db_port }} -user {{ agent_db_user }}"
 ExecStart={{ virtualenv_dir }}/bin/python {{ agent_scripts_dir }}/scripts/database/VerticaDatabaseAgent.py $PARAMS
 ExecStop={{ virtualenv_dir }}/bin/python {{ agent_scripts_dir }}/scripts/database/VerticaDatabaseAgent_stop.py $PARAMS
+Restart=on-failure
+RestartSec=5s

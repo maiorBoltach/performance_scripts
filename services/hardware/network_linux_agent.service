@@ -5,3 +5,5 @@ Description="Network Host agent"
 Environment="PARAMS=-name {{ item.value.dbname }} -host {{ item.value.ip }} -port {{ agent_ssh_port }} -user {{ agent_ssh_user }}"
 ExecStart={{ virtualenv_dir }}/bin/python {{ agent_scripts_dir }}/scripts/hardware/NetworkAgent_Linux.py $PARAMS
 ExecStop={{ virtualenv_dir }}/bin/python {{ agent_scripts_dir }}/scripts/hardware/NetworkAgent_Linux_stop.py $PARAMS
+Restart=on-failure
+RestartSec=5s
