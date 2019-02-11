@@ -3,5 +3,5 @@ Description="Hardware Host agent"
 
 [Service]
 Environment="PARAMS=-name {{ item.value.dbname }} -host {{ item.value.ip }} -port {{ agent_ssh_port }} -user {{ agent_ssh_user }}"
-ExecStart={{ virtualenv_dir }}/bin/python {{ virtualenv_dir }}/scripts/HardwareAgent_Linux.py $PARAMS
-ExecStop={{ virtualenv_dir }}/bin/python {{ virtualenv_dir }}/scripts/HardwareAgent_Linux_stop.py $PARAMS
+ExecStart={{ virtualenv_dir }}/bin/python {{ agent_scripts_dir }}/scripts/hardware/HardwareAgent_Linux.py $PARAMS
+ExecStop={{ virtualenv_dir }}/bin/python {{ agent_scripts_dir }}/scripts/hardware/HardwareAgent_Linux_stop.py $PARAMS
