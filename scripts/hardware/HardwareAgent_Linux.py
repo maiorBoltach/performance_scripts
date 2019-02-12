@@ -8,7 +8,6 @@ import time
 import atexit
 from ..utils import utils
 
-process_info_command = "top -bn1 -p $(/usr/sbin/pidof vertica | sed 's/ /, /g')"
 cpu_command = "mpstat -P ALL 1 2"
 hdd_command = "df"
 hdd_detailed_command = "iostat -xtc 1 2"
@@ -16,34 +15,6 @@ ram_command = "vmstat 1 2"
 
 
 def fetch_data_from_host_and_send_to_influxdb(config, client, host, counter):
-    # Process info
-    processMeasurements = []
-    stdin, stdout, stderr = client.exec_command(process_info_command)
-    dataProc = stdout.read() + stderr.read()
-    dataProc = dataProc.decode().split("\n\n")[-1].split("\n")
-    keysProc = dataProc[0].split()
-    dataProc = dataProc[1:len(dataProc) - 1]
-    for i in dataProc:
-        valuesProc = i.split()
-        dctCPU = dict(zip(keysProc, valuesProc))
-        measurements = ""
-        for key in cfg.processMetrics_linux:
-            measurement_value = dctCPU[key]
-            if key == "VIRT" or key == "RES" or key == "SHR":
-                if measurement_value.endswith("g"):
-                    measurement_value = float(measurement_value[:-1]) * 1000000
-                elif measurement_value.endswith("m"):
-                    measurement_value = float(measurement_value[:-1]) * 1000
-            if key == "USER" or key == "S" or key == "TIME+" or key == "COMMAND" or key == "PR":
-                measurement_value = "\"" + measurement_value + "\""
-            measurements = measurements + "{}={},".format(key.replace("%", ""), measurement_value)
-        measurements = measurements[0:-1]  # strip the last comma
-        d = "process,host=%s %s" % (host, measurements)
-        processMeasurements.append(d)
-
-    result_str = "\n".join(processMeasurements)
-    utils.send_data_to_influxdb(config, result_str, "hardware")
-
     # CPU usage
     # mpstat -P ALL 1 2
     cpuMeasurements = []

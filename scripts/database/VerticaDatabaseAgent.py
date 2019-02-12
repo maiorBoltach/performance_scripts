@@ -9,6 +9,7 @@ from ..utils import configuration as cfg
 import vertica_python
 from ..utils import utils
 
+process_info_command = "top -bn1 -p $(/usr/sbin/pidof vertica | sed 's/ /, /g')"
 node_status_sql = "SELECT /*+LABEL(PERFORMANCE_AGENT)*/ node_name, node_state FROM nodes"
 request_history = "SELECT /*+LABEL(PERFORMANCE_AGENT)*/ node_name, user_name, request_id, transaction_id, statement_id, request_type, request, request_label, memory_acquired_mb,success, error_count, start_timestamp, end_timestamp, request_duration_ms, is_executing FROM v_monitor.query_requests WHERE statement_id > 0 AND transaction_id > 0 AND (start_timestamp > :param OR end_timestamp > :param OR is_executing='t')"
 request_history_fix = "SELECT /*+LABEL(PERFORMANCE_AGENT)*/ node_name, user_name, request_id, transaction_id, statement_id, request_type, request, request_label, memory_acquired_mb,success, error_count, start_timestamp, end_timestamp, request_duration_ms, is_executing FROM v_monitor.query_requests WHERE (transaction_id, request_id) IN (%s)"
@@ -67,6 +68,37 @@ def parse_query_history(host, res):
 
     result_str = "\n".join(request_history_result)
     return result_str
+
+
+# TODO: implement in full monitoring data process
+def fetch_system_process_data(config, client, host):
+    # Process info
+    processMeasurements = []
+    stdin, stdout, stderr = client.exec_command(process_info_command)
+    dataProc = stdout.read() + stderr.read()
+    dataProc = dataProc.decode().split("\n\n")[-1].split("\n")
+    keysProc = dataProc[0].split()
+    dataProc = dataProc[1:len(dataProc) - 1]
+    for i in dataProc:
+        valuesProc = i.split()
+        dctCPU = dict(zip(keysProc, valuesProc))
+        measurements = ""
+        for key in cfg.processMetrics_linux:
+            measurement_value = dctCPU[key]
+            if key == "VIRT" or key == "RES" or key == "SHR":
+                if measurement_value.endswith("g"):
+                    measurement_value = float(measurement_value[:-1]) * 1000000
+                elif measurement_value.endswith("m"):
+                    measurement_value = float(measurement_value[:-1]) * 1000
+            if key == "USER" or key == "S" or key == "TIME+" or key == "COMMAND" or key == "PR":
+                measurement_value = "\"" + measurement_value + "\""
+            measurements = measurements + "{}={},".format(key.replace("%", ""), measurement_value)
+        measurements = measurements[0:-1]  # strip the last comma
+        d = "process,host=%s %s" % (host, measurements)
+        processMeasurements.append(d)
+
+    result_str = "\n".join(processMeasurements)
+    utils.send_data_to_influxdb(config, result_str, "hardware")
 
 
 def fetch_data_from_host_and_send_to_influxdb(config, connection, host, counter, curr_time):
